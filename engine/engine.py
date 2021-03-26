@@ -41,10 +41,19 @@ class Engine(EngineInterface):
         self.surface.flush()
         glfw.swap_buffers(self.window.window)
 
+        rect = skia.Rect()
+        rect.setWH(50, 50)
+        rect.setLTRB(0, 0, 50, 50)
+        paint = skia.Paint()
+        paint.setColor(skia.ColorBLUE)
+        paint.setStyle(skia.Paint.kFill_Style)
+        path = skia.Path()
+        canv: skia.Canvas = self.surface.surface.getCanvas()
+        canv.drawRect(rect, paint)
+
         for layer in self.batches.keys():
             for sprite in self.batches[layer]:
-                self.surface.canvas.drawBitmap(sprite.image, 100, 100)
-                self.surface.surface.draw()
+                self.surface.surface.getCanvas().drawBitmap(sprite.image, sprite.position.x, sprite.position.y)
         glfw.poll_events()
 
         if glfw.get_key(self.window.window, glfw.KEY_ESCAPE):

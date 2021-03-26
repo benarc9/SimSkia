@@ -28,7 +28,7 @@ class SpriteRenderer(Component):
 		self._layer = value
 
 	@property
-	def image(self):
+	def image(self) -> skia.Image:
 		return self._image
 
 	@image.setter

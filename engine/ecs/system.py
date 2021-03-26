@@ -48,7 +48,7 @@ class System:
     def __init__(self, key: List[Type[Component]]):
         super(System, self).__init__()
         self.key = ComponentKey(key)
-        self.entities: Dict[uuid.UUID, Entity] = {}
+        self._entities: Dict[uuid.UUID, Entity] = {}
         PyBus.Instance().register(self, self.__class__.__name__)
 
     def __str__(self):
@@ -73,7 +73,7 @@ class System:
     def on_entity_added_event(self, event: EntityAddedEvent):
         loguru.logger.info("EntityAddedEvent")
         if self.check_entity(event.entity):
-            self.entities[event.entity.id] = event.entity
+            self._entities[event.entity.id] = event.entity
             loguru.logger.info("Entity Added: {}".format(event.entity))
         else:
             loguru.logger.info("Entity Not Added: {}".format(event.entity))

@@ -5,8 +5,6 @@ from engine.ecs.components.sprite_renderer import SpriteRenderer
 from engine.ecs.systems.world_system import WorldSystem
 from engine.ecs.systems.render_system import RenderSystem
 
-
-import sys
 import skia
 
 
@@ -14,7 +12,6 @@ class Player(Entity):
 	def __init__(self):
 		super(Player, self).__init__([SpriteRenderer])
 		sr: SpriteRenderer = self.get_component(SpriteRenderer)
-		print(sys.path)
 		sr.image = skia.Image.open('./tests/resources/pic.jpeg')
 
 class TestScene(Scene):

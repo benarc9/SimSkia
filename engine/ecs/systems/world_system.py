@@ -4,6 +4,8 @@ from engine.ecs.system import System
 from engine.ecs.components.transform import Transform
 from engine.lib.math import Vector
 
+import loguru
+
 
 class WorldSystem(System):
 	def __init__(self):
@@ -13,7 +15,7 @@ class WorldSystem(System):
 		pass
 
 	def update(self, ecs=None):
-		pass
+		loguru.logger.info("Entity Count: {}".format(len(super().entities)))
 
 	def translate(self, entity: Entity, vector: Vector):
 		transform: Transform = entity.get_component(Transform)

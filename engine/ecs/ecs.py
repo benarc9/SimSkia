@@ -67,7 +67,7 @@ class Ecs:
             system.start(ecs=self)
 
     def update(self) -> None:
-        # loguru.logger.info("Updating systems...")
+        loguru.logger.info("System Count: {}".format(len(self.systems)))
         for system in self.systems.values():
             system.update(ecs=self)
 
@@ -80,9 +80,10 @@ class Ecs:
 
     def instantiate(self, entity: Type[E]) -> E:
         loguru.logger.info("Instantiate called for entity type: {}".format(entity))
-        new_ent: Entity = entity()
+        new_ent: E = entity()
         self.entities[new_ent.id] = new_ent
         PyBus.Instance().post(EntityAddedEvent(self, new_ent))
+        return new_ent
 
     def destroy(self, entity: Entity):
         del self.entities[entity.id]
