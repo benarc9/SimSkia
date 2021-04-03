@@ -6,21 +6,13 @@ from typing import Type
 from engine.ecs.component import Component
 from engine.ecs.component_key import ComponentKey
 from engine.ecs.components.transform import Transform
-from engine.lib.event import Event
 
 import loguru
 
 from pyeventbus3.pyeventbus3 import PyBus
 
-
-class ComponentAddedEvent(Event['Entity']):
-    def __init__(self, source: 'Entity'):
-        super(ComponentAddedEvent, self).__init__(source)
-
-
-class ComponentRemovedEvent(Event['Entity']):
-    def __init__(self, source: 'Entity'):
-        super(ComponentRemovedEvent, self).__init__(source)
+from engine.ecs.events.component_added_event import ComponentAddedEvent
+from engine.ecs.events.component_removed_event import ComponentRemovedEvent
 
 
 class Entity:

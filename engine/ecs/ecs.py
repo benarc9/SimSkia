@@ -2,17 +2,19 @@ from typing import Type, List, Dict
 from typing import TypeVar
 
 from engine.ecs.entity import Entity
+from engine.ecs.events.entity_added_event import EntityAddedEvent
+from engine.ecs.events.entity_removed_event import EntityRemovedEvent
 from engine.ecs.scene import Scene
-from engine.ecs.system import EntityRemovedEvent
-from engine.ecs.system import System, EntityAddedEvent
 
 import loguru
 
-from pyeventbus3.pyeventbus3 import *
+from pyeventbus3.pyeventbus3 import PyBus
+
+from engine.ecs.system import System
 
 
 E = TypeVar("E", bound=Entity)
-S = TypeVar("S", bound=System)
+S = TypeVar("S")
 
 
 class Ecs:
@@ -20,35 +22,11 @@ class Ecs:
         super(Ecs, self).__init__()
         loguru.logger.info("Ecs started...")
         self.scenes = scenes
-        self.entities = {}
-        self.systems = {}
         self.scene_index = 0
         self.current_scene = None
         self.engine = None
         if self.scenes is not None:
             self.load_scene(0)
-
-    def __str__(self):
-        systems = []
-        ents = []
-
-        if self.systems.values() is None:
-            systems = "No systems loaded"
-        else:
-            for system in self.systems.values():
-                systems.append(system.__class__.__name__)
-
-        if len(self.entities.values()) == 0:
-            ents = "No entities loaded"
-        else:
-            for ent in self.entities.values():
-                ents.append(ent.__class__.__name__)
-
-        return "ECS\n" \
-               "\tSystems:\n" \
-               "\t\t{}" \
-               "\n\tEntities:\n" \
-               "\t\t{}".format(systems, ents)
 
     def load_scene(self, index: int) -> None:
         self.scene_index = index
@@ -62,43 +40,30 @@ class Ecs:
             self.instantiate(entity_type)
 
     def start(self) -> None:
-        loguru.logger.info("Starting Ecs...\nStarting systems...")
-        for system in self.systems.values():
-            system.start(ecs=self)
+        self.current_scene.start()
 
     def update(self) -> None:
-        loguru.logger.info("System Count: {}".format(len(self.systems)))
-        for system in self.systems.values():
-            system.update(ecs=self)
+        self.current_scene.update()
 
     def load_system(self, system_type: [Type[S]]) -> S:
-        if system_type not in self.systems.keys():
+        if system_type not in self.current_scene.systems.keys():
             new_sys: S = system_type()
-            self.systems[system_type] = new_sys
-            loguru.logger.info("System Loaded: [{}]".format(new_sys))
+            PyBus.Instance().register(new_sys, system_type)
+            self.current_scene.systems[system_type] = new_sys
             return system_type()
 
     def instantiate(self, entity: Type[E]) -> E:
-        loguru.logger.info("Instantiate called for entity type: {}".format(entity))
         new_ent: E = entity()
-        self.entities[new_ent.id] = new_ent
+        self.current_scene.entities[new_ent.id] = new_ent
         PyBus.Instance().post(EntityAddedEvent(self, new_ent))
         return new_ent
 
     def destroy(self, entity: Entity):
-        del self.entities[entity.id]
+        del self.current_scene.entities[entity.id]
         PyBus.Instance().post(EntityRemovedEvent(self, entity))
 
     def get_system(self, system_type: Type[S]) -> S:
-        return self.systems[system_type]
-
-    @property
-    def systems(self) -> Dict[Type[System], System]:
-        return self._systems
-
-    @systems.setter
-    def systems(self, value: Dict[Type[System], System]):
-        self._systems = value
+        return self.current_scene.systems[system_type]
 
     @property
     def scene_index(self) -> int:
@@ -133,4 +98,11 @@ class Ecs:
         self._engine = value
 
 
+_ecs: Ecs = None
 
+
+def ECS(scenes: List[Type[Scene]]=None):
+    global _ecs
+    if _ecs is None:
+        _ecs = Ecs(scenes)
+    return _ecs

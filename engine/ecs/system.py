@@ -1,9 +1,12 @@
 import uuid
+from abc import abstractmethod
 from typing import Dict
 from typing import List
 from typing import Type
+from abc import ABC
 
 import loguru
+
 from pyeventbus3 import pyeventbus3
 
 from engine.ecs.component import Component
@@ -11,94 +14,57 @@ from engine.ecs.component_key import ComponentKey
 from engine.ecs.entity import ComponentRemovedEvent, ComponentAddedEvent
 from engine.ecs.entity import Entity
 
-from pyeventbus3.pyeventbus3 import PyBus
-
-from engine.lib.event import Event
-
-
-class EntityAddedEvent(Event):
-    def __init__(self, ecs, entity: Entity):
-        super(EntityAddedEvent, self).__init__(ecs)
-        self.entity = entity
-
-    @property
-    def entity(self) -> Entity:
-        return self._entity
-
-    @entity.setter
-    def entity(self, value: Entity):
-        self._entity = value
+from engine.ecs.events.entity_added_event import EntityAddedEvent
+from engine.ecs.events.entity_added_to_system_event import EntityAddedToSystemEvent
+from engine.ecs.events.entity_removed_event import EntityRemovedEvent
 
 
-class EntityRemovedEvent(Event):
-    def __init__(self, ecs, entity: Entity):
-        super(EntityRemovedEvent, self).__init__(ecs)
-        self.entity = entity
-
-    @property
-    def entity(self) -> Entity:
-        return self._entity
-
-    @entity.setter
-    def entity(self, value: Entity):
-        self._entity = value
-
-
-class System:
+class System(ABC):
     def __init__(self, key: List[Type[Component]]):
         super(System, self).__init__()
         self.key = ComponentKey(key)
-        self._entities: Dict[uuid.UUID, Entity] = {}
-        PyBus.Instance().register(self, self.__class__.__name__)
+        self.entities = {}
 
-    def __str__(self):
-        return "System[{}]".format(self.__class__.__name__)
+    def __add_entity__(self, entity: Entity):
+        self.entities[entity.id] = entity
 
-    def start(self, ecs=None):
+    def __remove_entity__(self, entity: Entity):
+        if entity.id in self.entities.keys():
+            del self.entities[entity.id]
+
+    @abstractmethod
+    def start(self):
         pass
 
-    def update(self, ecs=None):
+    @abstractmethod
+    def update(self):
         pass
 
-    def check_entity(self, entity: Entity=None) -> bool:
-        if entity is not None:
-            loguru.logger.info("Checking Component Key Match")
-            loguru.logger.info("\tSystem: {}\tEntity: {}".format(self.__class__.__name__, entity.__class__.__name__))
-            loguru.logger.info("\tEntity Key: {}".format(entity.key))
-            loguru.logger.info("\tSystem Key: {}".format(self.key))
-            loguru.logger.info("Matched?: {}".format(self.key == entity.key))
-            return self.key == entity.key
+    def check_entity(self, entity: Entity) -> bool:
+        return self.key == entity.key
 
     @pyeventbus3.subscribe(onEvent=EntityAddedEvent)
-    def on_entity_added_event(self, event: EntityAddedEvent):
-        loguru.logger.info("EntityAddedEvent")
+    def on_entity_added_event(self, event):
         if self.check_entity(event.entity):
-            self._entities[event.entity.id] = event.entity
-            loguru.logger.info("Entity Added: {}".format(event.entity))
-        else:
-            loguru.logger.info("Entity Not Added: {}".format(event.entity))
+            self.entities[event.entity.id] = event.entity
 
     @pyeventbus3.subscribe(onEvent=EntityRemovedEvent)
-    def on_entity_removed_event(self, event: EntityRemovedEvent):
+    def on_entity_removed_event(self, event):
         if event.entity.id in self.entities.keys():
-            del self.entities[event.entity.id]
-            loguru.logger.info("Entity removed: {}".format(event.entity))
-        else:
-            loguru.logger.info("Cannot remove entity that does not exist")
+            if not self.check_entity(event.entity):
+                del self.entities[event.entity.id]
 
     @pyeventbus3.subscribe(onEvent=ComponentAddedEvent)
     def on_component_added_event(self, event: ComponentAddedEvent):
         if event.source.id not in self.entities.keys():
             if self.check_entity(event.source):
-                self.entities[event.source.id] = event.source
-                loguru.logger.info("System[{}]: Entity Added: {}".format(self.__class__.__name__, event.source.__class__.__name__))
+                self.__add_entity__(event.source)
 
     @pyeventbus3.subscribe(onEvent=ComponentRemovedEvent)
     def on_component_removed_event(self, event: ComponentRemovedEvent):
         if event.source.id in self.entities.keys():
             if not self.check_entity(event.source):
-                del self.entities[event.source.id]
-                loguru.logger.info("System[{}]: Entity Removed: {}".format(self.__class__.__name__, event.source.__class__.__name__))
+                self.__remove_entity__(event.source)
 
     @property
     def key(self) -> ComponentKey:

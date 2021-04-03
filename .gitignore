@@ -1,2 +1,7 @@
 # Project exclude paths
 /venv/
+/build/
+/dist/
+/Sim.egg-info/
+./out.log
+.idea

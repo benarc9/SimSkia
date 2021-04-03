@@ -15,7 +15,7 @@ class WorldSystem(System):
 		pass
 
 	def update(self, ecs=None):
-		loguru.logger.info("Entity Count: {}".format(len(super().entities)))
+		pass
 
 	def translate(self, entity: Entity, vector: Vector):
 		transform: Transform = entity.get_component(Transform)
