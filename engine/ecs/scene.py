@@ -1,11 +1,13 @@
 from abc import ABC
-from abc import abstractmethod
 from typing import Dict
 from typing import List
 from typing import Type
 
+from engine.ecs.events.key_event import KeyEvent
 from engine.ecs.system import System
 from engine.ecs.entity import Entity
+
+from pyeventbus3.pyeventbus3 import PyBus, subscribe
 
 import loguru
 
@@ -25,6 +27,15 @@ class Scene(ABC):
     def update(self):
         for system in self.systems.values():
             system.update()
+
+    def find_entity(self, name: str) -> Entity:
+        for entity in self.entities.values():
+            if entity.__class__.__name__ == name:
+                return entity
+
+    @subscribe(onEvent=KeyEvent)
+    def key_pressed(self, event: KeyEvent):
+        pass
 
     @property
     def system_types(self) -> List[Type[System]]:

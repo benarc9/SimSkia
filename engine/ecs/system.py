@@ -15,7 +15,6 @@ from engine.ecs.entity import ComponentRemovedEvent, ComponentAddedEvent
 from engine.ecs.entity import Entity
 
 from engine.ecs.events.entity_added_event import EntityAddedEvent
-from engine.ecs.events.entity_added_to_system_event import EntityAddedToSystemEvent
 from engine.ecs.events.entity_removed_event import EntityRemovedEvent
 
 
@@ -24,13 +23,6 @@ class System(ABC):
         super(System, self).__init__()
         self.key = ComponentKey(key)
         self.entities = {}
-
-    def __add_entity__(self, entity: Entity):
-        self.entities[entity.id] = entity
-
-    def __remove_entity__(self, entity: Entity):
-        if entity.id in self.entities.keys():
-            del self.entities[entity.id]
 
     @abstractmethod
     def start(self):
@@ -58,13 +50,13 @@ class System(ABC):
     def on_component_added_event(self, event: ComponentAddedEvent):
         if event.source.id not in self.entities.keys():
             if self.check_entity(event.source):
-                self.__add_entity__(event.source)
+                self.entities[event.source.id] = event.source
 
     @pyeventbus3.subscribe(onEvent=ComponentRemovedEvent)
     def on_component_removed_event(self, event: ComponentRemovedEvent):
         if event.source.id in self.entities.keys():
             if not self.check_entity(event.source):
-                self.__remove_entity__(event.source)
+                del self.entities[event.source.id]
 
     @property
     def key(self) -> ComponentKey:

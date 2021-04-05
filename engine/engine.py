@@ -1,3 +1,4 @@
+from typing import Callable
 from typing import Dict
 from typing import List
 
@@ -59,6 +60,9 @@ class Engine(EngineInterface):
         if layer not in self.batches.keys():
             self.batches[layer] = []
         self.batches[layer].append(sprite)
+
+    def set_key_callback(self, callback):
+        glfw.set_key_callback(self.window.window, callback)
 
     @property
     def window(self) -> Window:

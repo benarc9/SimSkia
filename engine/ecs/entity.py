@@ -25,6 +25,7 @@ class Entity:
         self.id = uuid.uuid4()
 
         for component in components:
+            loguru.logger.info("Adding Component: {}".format(component))
             self.components[component] = component()
 
     def __str__(self):

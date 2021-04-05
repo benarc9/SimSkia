@@ -1,18 +1,9 @@
-from typing import Dict
-
 from engine.ecs.components.transform import Transform
-from engine.ecs.events.entity_added_to_system_event import EntityAddedToSystemEvent
 from engine.ecs.system import System
 from engine.ecs.components.sprite_renderer import SpriteRenderer
 from engine.graphics.sprite import Sprite
 
-from pyeventbus3.pyeventbus3 import PyBus, subscribe
-
 from engine.ecs.ecs import ECS
-
-import loguru
-
-from engine.graphics.sprite_batch import SpriteBatch
 
 
 class RenderSystem(System):
