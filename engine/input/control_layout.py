@@ -8,6 +8,7 @@ class ControlLayout:
 	def __init__(self, name: str):
 		self._name = name
 		self.button_map = {}
+		self.action_map = {}
 
 	def map(self, key: Key, button: Button) -> "ControlLayout":
 		self.button_map[key] = button

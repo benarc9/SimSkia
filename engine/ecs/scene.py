@@ -3,11 +3,8 @@ from typing import Dict
 from typing import List
 from typing import Type
 
-from engine.ecs.events.key_event import KeyEvent
 from engine.ecs.system import System
 from engine.ecs.entity import Entity
-
-from pyeventbus3.pyeventbus3 import subscribe
 
 
 class Scene(ABC):
@@ -30,10 +27,6 @@ class Scene(ABC):
         for entity in self.entities.values():
             if entity.__class__.__name__ == name:
                 return entity
-
-    @subscribe(onEvent=KeyEvent)
-    def key_pressed(self, event: KeyEvent):
-        pass
 
     @property
     def system_types(self) -> List[Type[System]]:

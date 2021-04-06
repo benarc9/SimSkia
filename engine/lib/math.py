@@ -5,7 +5,7 @@ class Vector:
 
     def translate(self, vect: 'Vector'):
         self.x += vect.x
-        self.y += vect.y
+        self.y -= vect.y
 
     @property
     def x(self) -> int:

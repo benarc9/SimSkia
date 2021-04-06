@@ -1,15 +1,15 @@
-from engine.ecs.events.key_event import KeyAction
+from engine.input.action import Action
 from engine.input.button import Button
 
 
 class ButtonEvent:
-	def __init__(self, controller: str, button: Button, action: KeyAction):
+	def __init__(self, button: Button, action: Action, controller):
 		self._controller = controller
 		self._button = button
 		self._action = action
 
 	@property
-	def controller(self) -> str:
+	def controller(self):
 		return self._controller
 
 	@property
@@ -17,6 +17,6 @@ class ButtonEvent:
 		return self._button
 
 	@property
-	def action(self) -> KeyAction:
+	def action(self) -> Action:
 		return self._action
 

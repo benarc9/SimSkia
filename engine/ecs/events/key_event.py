@@ -1,14 +1,14 @@
 from engine.input.key import Key
-from engine.input.key_action import KeyAction
+from engine.input.action import Action
 
 
 class KeyEvent:
-	def __init__(self, key: Key, action: KeyAction):
+	def __init__(self, key: Key, action: Action):
 		self._key = key
 		self._action = action
 
 	@property
-	def action(self) -> KeyAction:
+	def action(self) -> Action:
 		return self._action
 
 	@property

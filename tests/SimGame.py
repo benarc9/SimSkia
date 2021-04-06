@@ -13,11 +13,16 @@ from pyeventbus3.pyeventbus3 import PyBus, subscribe
 
 import skia
 
+from engine.input.action import Action
 from engine.input.control_layout import ControlLayout
 from engine.ecs.events.key_event import Key
 from engine.input.button import Button
 
 from loguru import logger
+
+from engine.lib.math import Vector
+
+
 log = logger.info
 
 
@@ -39,7 +44,7 @@ class Player(Entity):
 			.map(Key.S, Button.DIR_DOWN)\
 			.map(Key.A, Button.DIR_LEFT)\
 			.map(Key.D, Button.DIR_RIGHT)
-		input = self.get_component(InputController)
+		input:InputController = self.get_component(InputController)
 		input.control_layout = controller
 
 
@@ -48,34 +53,24 @@ class TestScene(Scene):
 		super(TestScene, self).__init__([WorldSystem, RenderSystem, InputSystem], [Player])
 		PyBus.Instance().register(self, self.__class__.__name__)
 		self.player: Player
+		self.player_transform: Transform
 
 	def start(self):
 		super(TestScene, self).start()
 		self.player = self.find_entity("Player")
-		transform = self.player.get_component(Transform)
-		if transform is not None:
-			log("Transform NOT none")
-			if transform.entity is None:
-				log("Transform entity attribute IS none")
-			else:
-				log("Transform entity attribute is NOT none: {}".format(transform.entity))
-		else:
-			log("Transform IS none")
+		self.player_transform = self.player.get_component(Transform)
+
+		print(self.player_transform)
 
 	def update(self):
 		super(TestScene, self).update()
 
 	@subscribe(onEvent=ButtonEvent)
 	def on_button_event(self, event: ButtonEvent):
-		if event.controller == "Player":
-			if event.button is Button.DIR_UP:
-				transform: Transform = self.player.get_component(Transform)
-				if transform is not None:
-					log("Transform = Position: {}\tScale: {}\tRotation: {}".format(transform.position, transform.scale, transform.rotation))
-				else:
-					log("Transform not found!")
-		else:
-			log("Controller: {}".format(event.controller))
+		if isinstance(event.controller.entity, Player):
+			if event.button is Button.DIR_UP and event.action is Action.PRESS:
+				tr: Transform = event.controller.entity.get_component(Transform)
+				tr.position.translate(Vector(0, 5))
 
 
 class SimGame(Game):

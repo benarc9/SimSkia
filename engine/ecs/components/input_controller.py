@@ -19,7 +19,7 @@ class InputController(Component):
 	@subscribe(onEvent=KeyEvent)
 	def on_key_event(self, event: KeyEvent):
 		if self.control_layout.is_mapped(event.key):
-			PyBus.Instance().post(ButtonEvent(self.__class__.__name__, self.control_layout.button_map[event.key], event.action))
+			PyBus.Instance().post(ButtonEvent(self.control_layout.button_map[event.key], event.action, self))
 
 	@property
 	def control_layout(self) -> ControlLayout:
