@@ -7,8 +7,6 @@ from engine.ecs.component import Component
 from engine.ecs.component_key import ComponentKey
 from engine.ecs.components.transform import Transform
 
-import loguru
-
 from pyeventbus3.pyeventbus3 import PyBus
 
 from engine.ecs.events.component_added_event import ComponentAddedEvent
@@ -18,15 +16,15 @@ from engine.ecs.events.component_removed_event import ComponentRemovedEvent
 class Entity:
     def __init__(self, components: List[Type[Component]]):
         super(Entity, self).__init__()
-        loguru.logger.info("Entity created [{}]".format(self.__class__.__name__))
         components.append(Transform)
         self.key = ComponentKey(components)
         self.components = {}
         self.id = uuid.uuid4()
 
         for component in components:
-            loguru.logger.info("Adding Component: {}".format(component))
-            self.components[component] = component()
+            new_comp = component()
+            new_comp.entity = self
+            self.components[component] = new_comp
 
     def __str__(self):
         return "Entity: [{}]".format(self.__class__.__name__)

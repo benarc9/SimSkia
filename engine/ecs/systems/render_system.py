@@ -18,6 +18,5 @@ class RenderSystem(System):
 			sr: SpriteRenderer = ent.get_component(SpriteRenderer)
 			tr: Transform = ent.get_component(Transform)
 			sr.sprite = Sprite(tr.position, sr.image)
-
 			self.ecs.engine.draw(sr.layer, sr.sprite)
 

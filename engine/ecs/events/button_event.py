@@ -1,11 +1,9 @@
 from engine.ecs.events.key_event import KeyAction
 from engine.input.button import Button
-from engine.lib.event import Event
 
 
-class ButtonEvent(Event):
+class ButtonEvent:
 	def __init__(self, controller: str, button: Button, action: KeyAction):
-		super(ButtonEvent, self).__init__(self)
 		self._controller = controller
 		self._button = button
 		self._action = action

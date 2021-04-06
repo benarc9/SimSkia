@@ -7,9 +7,7 @@ from engine.ecs.events.key_event import KeyEvent
 from engine.ecs.system import System
 from engine.ecs.entity import Entity
 
-from pyeventbus3.pyeventbus3 import PyBus, subscribe
-
-import loguru
+from pyeventbus3.pyeventbus3 import subscribe
 
 
 class Scene(ABC):

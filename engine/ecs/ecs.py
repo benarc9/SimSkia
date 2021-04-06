@@ -6,11 +6,7 @@ from engine.ecs.events.entity_added_event import EntityAddedEvent
 from engine.ecs.events.entity_removed_event import EntityRemovedEvent
 from engine.ecs.scene import Scene
 
-import loguru
-
 from pyeventbus3.pyeventbus3 import PyBus
-
-from engine.ecs.system import System
 
 
 E = TypeVar("E", bound=Entity)
@@ -20,7 +16,6 @@ S = TypeVar("S")
 class Ecs:
     def __init__(self, scenes: List[Type[Scene]]=None):
         super(Ecs, self).__init__()
-        loguru.logger.info("Ecs started...")
         self.scenes = scenes
         self.scene_index = 0
         self.current_scene = None
@@ -31,7 +26,6 @@ class Ecs:
     def load_scene(self, index: int) -> None:
         self.scene_index = index
         self.current_scene = self.scenes[self.scene_index]()
-        loguru.logger.info("Loading Scene: [{}]".format(self.current_scene))
 
         for system_type in self.current_scene.system_types:
             self.load_system(system_type)
@@ -45,7 +39,7 @@ class Ecs:
     def update(self) -> None:
         self.current_scene.update()
 
-    def load_system(self, system_type: [Type[S]]) -> S:
+    def load_system(self, system_type: Type[S]) -> S:
         if system_type not in self.current_scene.systems.keys():
             new_sys: S = system_type()
             PyBus.Instance().register(new_sys, system_type)
