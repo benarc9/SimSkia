@@ -60,8 +60,6 @@ class TestScene(Scene):
 		self.player = self.find_entity("Player")
 		self.player_transform = self.player.get_component(Transform)
 
-		print(self.player_transform)
-
 	def update(self):
 		super(TestScene, self).update()
 
