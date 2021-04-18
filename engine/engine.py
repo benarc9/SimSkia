@@ -1,10 +1,9 @@
-from typing import Callable
 from typing import Dict
 from typing import List
 
 from OpenGL import GL
 from abc import ABC
-import glfw, skia
+import glfw
 
 from engine.graphics.sprite import Sprite
 from engine.graphics.window import Window
@@ -35,12 +34,13 @@ class Engine(EngineInterface):
 
     def start(self):
         self.running = True
+        self.set_resize_callback(self.framebuffer_size_callback)
 
     def update(self) -> bool:
         self.running = True
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
         self.surface.flush()
-        glfw.swap_buffers(self.window.window)
+        glfw.swap_buffers(self.window.glfw_window)
 
         for layer in self.batches.keys():
             for sprite in self.batches[layer]:
@@ -49,9 +49,9 @@ class Engine(EngineInterface):
         self.batches = {}
         glfw.poll_events()
 
-        if glfw.get_key(self.window.window, glfw.KEY_ESCAPE):
+        if glfw.get_key(self.window.glfw_window, glfw.KEY_ESCAPE):
             self.running = False
-        elif glfw.window_should_close(self.window.window):
+        elif glfw.window_should_close(self.window.glfw_window):
             self.running = False
 
         return self.running
@@ -61,8 +61,14 @@ class Engine(EngineInterface):
             self.batches[layer] = []
         self.batches[layer].append(sprite)
 
+    def set_resize_callback(self, callback):
+        glfw.set_framebuffer_size_callback(self.window.glfw_window, callback)
+
     def set_key_callback(self, callback):
-        glfw.set_key_callback(self.window.window, callback)
+        glfw.set_key_callback(self.window.glfw_window, callback)
+
+    def framebuffer_size_callback(self, window, width, height):
+        GL.glViewport(0, 0, width, height)
 
     @property
     def window(self) -> Window:

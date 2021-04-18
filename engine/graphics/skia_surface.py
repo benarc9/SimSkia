@@ -15,8 +15,11 @@ class SkiaSurface:
             skia.GrGLFramebufferInfo(0, GL.GL_RGBA8))
 
         self.surface = skia.Surface.MakeFromBackendRenderTarget(
-            self.context, self.render_target, skia.kBottomLeft_GrSurfaceOrigin,
-            skia.kRGBA_8888_ColorType, skia.ColorSpace.MakeSRGB())
+            self.context,
+            self.render_target,
+            skia.kBottomLeft_GrSurfaceOrigin,
+            skia.kRGBA_8888_ColorType,
+            skia.ColorSpace.MakeSRGB())
 
         self.canvas = self.surface.getCanvas()
 

@@ -26,13 +26,6 @@ from engine.lib.math import Vector
 log = logger.info
 
 
-class OtherPlayer(Entity):
-	def __init__(self):
-		super(OtherPlayer, self).__init__([SpriteRenderer])
-		sr: SpriteRenderer = self.get_component(SpriteRenderer)
-		sr.image = skia.Image.open('./tests/resources/pic.jpeg')
-
-
 class Player(Entity):
 	def __init__(self):
 		super(Player, self).__init__([SpriteRenderer, InputController])

@@ -8,8 +8,8 @@ class Window:
             raise RuntimeError('glfw.init() failed')
         glfw.window_hint(glfw.STENCIL_BITS, 8)
         self.size = size
-        self.window = glfw.create_window(self.size.x, self.size.y, '', None, None)
-        glfw.make_context_current(self.window)
+        self.glfw_window = glfw.create_window(self.size.x, self.size.y, '', None, None)
+        glfw.make_context_current(self.glfw_window)
 
     @property
     def size(self) -> Vector:
@@ -20,9 +20,9 @@ class Window:
         self._size = value
 
     @property
-    def window(self) -> glfw._GLFWwindow:
-        return self._window
+    def glfw_window(self) -> glfw._GLFWwindow:
+        return self._glfw_window
 
-    @window.setter
-    def window(self, value: glfw._GLFWwindow):
-        self._window = value
+    @glfw_window.setter
+    def glfw_window(self, value: glfw._GLFWwindow):
+        self._glfw_window = value
